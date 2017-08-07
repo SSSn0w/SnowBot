@@ -10,7 +10,7 @@ var options = {
 	},
     identity: {
         username: "SSSSn0w",
-        password: "oauth:tg6dtj9mb0tvypgocznxglyd5x25zt"
+        password: "oauth:"
     },
     channels: ["ssssn0w"]
 };

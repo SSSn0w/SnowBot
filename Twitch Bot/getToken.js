@@ -1,5 +1,5 @@
 function getToken() {
-    return "oauth:se8gnwl49ubq8elotmzcxvdnjbiaef";
+    return "oAuth Token Here";
 }
 
 module.exports.getToken = getToken;

@@ -3,14 +3,14 @@ var tmi = require("tmi.js");
 var options = {
 	options: {
 		debug: true
-	}, 
+	},
 	connection: {
 		cluster: "aws",
 		reconnect: true
 	},
     identity: {
         username: "SSSSn0w",
-        password: "oauth:"
+		password: require("./getToken.js").getToken()
     },
     channels: ["ssssn0w"]
 };

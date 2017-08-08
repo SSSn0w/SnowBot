@@ -75,7 +75,7 @@ twitch.on('message', function (channel, userstate, message, self) {
             if(message.indexOf('!discord') !== -1) {
 				twitch.action(options.channels[0], 'Hi! I\'m the new twitch discord being made by Snow! Nice to meet you! Please look forward to more great features!');
 			}
-            break;
+			break;
     }
 });
 

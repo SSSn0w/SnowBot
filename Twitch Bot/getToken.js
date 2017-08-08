@@ -3,4 +3,3 @@ function getToken() {
 }
 
 module.exports.getToken = getToken;
-var test;

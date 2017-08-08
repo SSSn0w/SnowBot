@@ -22,7 +22,7 @@ var options = {
 		reconnect: true
 	},
     identity: {
-        username: 'SSSnowdiscord',
+        username: 'SSSnowBot',
         password: require('./getToken.js').twitchToken()
     },
     channels: ['ssssn0w']

@@ -28,10 +28,13 @@ var options = {
     channels: ['ssssn0w']
 };
 
-var jokeUrl = 'https://api.icndb.com/jokes/random';
-
 var twitch = new tmi.client(options);
 twitch.connect();
+
+var jokeUrl = 'http://api.icndb.com/jokes/random';
+
+var http = require('http');
+http.createServer(function(req, res) {});
 
 //########################################################################
 //################### Discord Bot ########################################
@@ -48,7 +51,7 @@ discord.on('message', function(user, userID, channelID, message, event) {
             message: 'pong'
         });
     }
-  	else if (message.indexOf('!joke') !== -1) {
+  	if (message.indexOf('!joke') !== -1) {
         http.get(jokeUrl, function(res){
             var body = '';
 
@@ -60,7 +63,7 @@ discord.on('message', function(user, userID, channelID, message, event) {
                 var joke = JSON.parse(body);
                 discord.sendMessage({
                     to: channelID,
-                    message: joke.joke
+                    message: joke.value.joke
                 });
             });
         }).on('error', function(e){
@@ -100,7 +103,7 @@ twitch.on('message', function (channel, userstate, message, self) {
 
                     res.on('end', function(){
                         var joke = JSON.parse(body);
-                        twitch.action(options.channels[0], joke.joke);
+                        twitch.action(options.channels[0], joke.value.joke);
                     });
                 }).on('error', function(e){
                     console.log("Got an error: ", e);

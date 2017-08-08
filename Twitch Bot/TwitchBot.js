@@ -9,7 +9,7 @@ var options = {
 		reconnect: true
 	},
     identity: {
-        username: "SSSSn0w",
+        username: "SSSnowBot",
 		password: require("./getToken.js").getToken()
     },
     channels: ["ssssn0w"]

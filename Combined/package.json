@@ -1,0 +1,23 @@
+{
+  "name": "snowbot",
+  "version": "1.0.0",
+  "description": "Bot for discord and twitch",
+  "main": "SnowBot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SSSn0w/SnowBot.git"
+  },
+  "author": "SSSn0w",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SSSn0w/SnowBot/issues"
+  },
+  "homepage": "https://github.com/SSSn0w/SnowBot#readme",
+  "dependencies": {
+    "discord.io": "^2.5.1",
+    "tmi": "^2.0.0"
+  }
+}

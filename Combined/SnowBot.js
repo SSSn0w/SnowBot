@@ -28,6 +28,8 @@ var options = {
     channels: ['ssssn0w']
 };
 
+var jokeUrl = 'https://api.icndb.com/jokes/random';
+
 var twitch = new tmi.client(options);
 twitch.connect();
 
@@ -47,9 +49,22 @@ discord.on('message', function(user, userID, channelID, message, event) {
         });
     }
   	else if (message.indexOf('!joke') !== -1) {
-        discord.sendMessage({
-            to: channelID,
-            message: 'Can a kangaroo jump higher than a house? \nOf course, a house doesn’t jump at all.'
+        http.get(jokeUrl, function(res){
+            var body = '';
+
+            res.on('data', function(chunk){
+                body += chunk;
+            });
+
+            res.on('end', function(){
+                var joke = JSON.parse(body);
+                discord.sendMessage({
+                    to: channelID,
+                    message: joke.joke
+                });
+            });
+        }).on('error', function(e){
+            console.log("Got an error: ", e);
         });
   	}
 });
@@ -72,9 +87,25 @@ twitch.on('message', function (channel, userstate, message, self) {
 
     switch(userstate['message-type']) {
         case 'chat':
-            if(message.indexOf('!discord') !== -1) {
-				twitch.action(options.channels[0], 'Hi! I\'m the new twitch discord being made by Snow! Nice to meet you! Please look forward to more great features!');
+            if(message.indexOf('!bot') !== -1) {
+				twitch.action(options.channels[0], 'Hi! I\'m the new twitch bot being made by Snow! Nice to meet you! Please look forward to more great features!');
 			}
+            else if(message.indexOf('!joke') !== -1) {
+                http.get(jokeUrl, function(res){
+                    var body = '';
+
+                    res.on('data', function(chunk){
+                        body += chunk;
+                    });
+
+                    res.on('end', function(){
+                        var joke = JSON.parse(body);
+                        twitch.action(options.channels[0], joke.joke);
+                    });
+                }).on('error', function(e){
+                    console.log("Got an error: ", e);
+                });
+            }
             break;
     }
 });

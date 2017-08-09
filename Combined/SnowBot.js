@@ -25,7 +25,7 @@ var options = {
         username: 'SSSnowBot',
         password: require('./getToken.js').twitchToken()
     },
-    channels: ['ssssn0w']
+    channels: ['sodajett']
 };
 
 var twitch = new tmi.client(options);
@@ -75,10 +75,14 @@ twitch.on('message', function (channel, userstate, message, self) {
             if(message.indexOf('!discord') !== -1) {
 				twitch.action(options.channels[0], 'Hi! I\'m the new twitch discord being made by Snow! Nice to meet you! Please look forward to more great features!');
 			}
+			if(message.indexOf('!music') !== -1) {
+				
+				twitch.action(options.channels[0], 'Playing: 
 			break;
+
     }
 });
 
-twitch.on('join', function (channel, username, self) {
-    twitch.action(options.channels[0], 'Hi @' + username + '! Welcome to the stream! Please enjoy your stay!');
-});
+//twitch.on('join', function (channel, username, self) {
+//    twitch.action(options.channels[0], 'Hi @' + username + '! Welcome to the stream! Please enjoy your stay!');
+//});

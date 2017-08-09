@@ -91,7 +91,7 @@ twitch.on('message', function (channel, userstate, message, self) {
     switch(userstate['message-type']) {
         case 'chat':
             if(message.indexOf('!bot') !== -1) {
-				twitch.action(options.channels[0], 'Hi! I\'m the new twitch bot being made by Snow! Nice to meet you! Please look forward to more great features!');
+				twitch.action(options.channels[0], 'Hi! I\'m the new twitch bot being made by Snow and SodaJett! Nice to meet you! Please look forward to more great features!');
 			}
             else if(message.indexOf('!joke') !== -1) {
                 http.get(jokeUrl, function(res){

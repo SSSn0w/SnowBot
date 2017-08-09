@@ -1,5 +1,5 @@
 function getToken() {
-    return "oAuth Token";
+    return "Twitch Token";
 }
 
 module.exports.getToken = getToken;

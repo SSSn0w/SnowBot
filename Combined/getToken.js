@@ -3,7 +3,7 @@ function discordToken() {
 }
 
 function twitchToken() {
-    return "oauth:cd2wev6k72iyq6isgvwx3r7ldbce8o";
+    return "Twitch Token";
 }
 
 module.exports.discordToken = discordToken;

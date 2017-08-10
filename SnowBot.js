@@ -2,7 +2,10 @@
 //################### Setup Bot ##########################################
 //########################################################################
 
+// Bundle dependancies at the top for easier overview
 var Discord = require('discord.io');
+var tmi = require('tmi.js');
+var http = require('http');
 
 var discord = new Discord.Client({
     token: require('./getToken.js').discordToken(),
@@ -11,9 +14,7 @@ var discord = new Discord.Client({
 
 var NMID = 'SnowBot';
 
-var tmi = require('tmi.js');
-
-var options = {
+var twitchOptions = {
 	options: {
 		debug: true
 	},
@@ -25,15 +26,19 @@ var options = {
         username: 'SSSnowBot',
         password: require('./getToken.js').twitchToken()
     },
-    channels: ['sodajett']
+    channels: { sodaJett: 'sodajett'}
 };
 
-var twitch = new tmi.client(options);
+var discordOptions = {
+    channels: { testChannel: '343294539467063298' }
+}
+
+var twitch = new tmi.client(twitchOptions.options);
 twitch.connect();
 
+// URL for chuck norris jokes API
 var jokeUrl = 'http://api.icndb.com/jokes/random';
 
-var http = require('http');
 http.createServer(function(req, res) {});
 
 //########################################################################
@@ -45,37 +50,15 @@ discord.on('ready', function() {
 });
 
 discord.on('message', function(user, userID, channelID, message, event) {
-    if (message === 'ping' && user != NMID) {
-        discord.sendMessage({
-            to: channelID,
-            message: 'pong'
-        });
-    }
-  	if (message.indexOf('!joke') !== -1) {
-        http.get(jokeUrl, function(res){
-            var body = '';
-
-            res.on('data', function(chunk){
-                body += chunk;
-            });
-
-            res.on('end', function(){
-                var joke = JSON.parse(body);
-                discord.sendMessage({
-                    to: channelID,
-                    message: joke.value.joke
-                });
-            });
-        }).on('error', function(e){
-            console.log("Got an error: ", e);
-        });
+  	if (message.startsWith('!')) {
+        messageSender(messageHandler(message, 'discord'), 'discord', discordOptions.channels.testChannel);
   	}
 });
 
 discord.on('presence', function(user, userID, status, game, event) {
 	if (status === 'online') {
 		discord.sendMessage({
-            to: '343294539467063298',
+            to: discordOptions.channels.testChannel,
             message: 'Hi <@" + userID + ">! Welcome to the channel! Please enjoy your stay!'
         });
 	}
@@ -88,31 +71,53 @@ discord.on('presence', function(user, userID, status, game, event) {
 twitch.on('message', function (channel, userstate, message, self) {
     if (self) return;
 
-    switch(userstate['message-type']) {
-        case 'chat':
-            if(message.indexOf('!bot') !== -1) {
-				twitch.action(options.channels[0], 'Hi! I\'m the new twitch bot being made by Snow and SodaJett! Nice to meet you! Please look forward to more great features!');
-			}
-            else if(message.indexOf('!joke') !== -1) {
-                http.get(jokeUrl, function(res){
-                    var body = '';
-
-                    res.on('data', function(chunk){
-                        body += chunk;
-                    });
-
-                    res.on('end', function(){
-                        var joke = JSON.parse(body);
-                        twitch.action(options.channels[0], joke.value.joke);
-                    });
-                }).on('error', function(e){
-                    console.log("Got an error: ", e);
-                });
-            }
-            break;
-    }
+    if (message.startsWith('!')) {
+        messageSender(messageHandler(message, 'twitch'), 'twitch', twitchOptions.channels.sodaJett);
+  	}
 });
 
 //twitch.on('join', function (channel, username, self) {
 //    twitch.action(options.channels[0], 'Hi @' + username + '! Welcome to the stream! Please enjoy your stay!');
 //});
+
+
+//########################################################################
+//################### Message Handlers ###################################
+//########################################################################
+
+function messageHandler (message, type) {
+    console.log(message)
+    switch(message.slice(1)) {
+        case 'joke':
+            http.get(jokeUrl, function(res){
+                var body = '';
+
+                res.on('data', function(chunk){
+                    body += chunk;
+                });
+
+                res.on('end', function(){
+                    var joke = JSON.parse(body);
+                        return(joke.value.joke)
+                    });
+                });
+            break
+        case 'ping':
+            return('pong')
+            break
+        case 'bot':
+            return('Hi! I\'m the new twitch bot being made by Snow and SodaJett! Nice to meet you! Please look forward to more great features!')
+    }
+}
+
+function messageSender (message, type, channel) {
+    if(type === 'discord') {
+        discord.sendMessage({
+            to: channel,
+            message: message
+        });
+    }
+    else if(type === 'twitch') {
+        twitch.action(channel, message);
+    }
+}

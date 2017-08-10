@@ -51,7 +51,7 @@ discord.on('ready', function() {
 
 discord.on('message', function(user, userID, channelID, message, event) {
   	if (message.startsWith('!')) {
-        messageSender(messageHandler(message), 'discord', discordOptions.channels.testChannel);
+        messageHandler(message, 'discord', discordOptions.channels.testChannel);
   	}
 });
 
@@ -72,7 +72,7 @@ twitch.on('message', function (channel, userstate, message, self) {
     if (self) return;
 
     if (message.startsWith('!')) {
-        messageSender(messageHandler(message), 'twitch', twitchOptions.channels.sodaJett);
+        messageHandler(message, 'twitch', twitchOptions.channels.sodaJett);
   	}
 });
 
@@ -85,9 +85,10 @@ twitch.on('message', function (channel, userstate, message, self) {
 //################### Message Handlers ###################################
 //########################################################################
 
-function messageHandler (message) {
-    console.log(message)
-    switch(message.slice(1)) {
+function messageHandler (mes, type, channel) {
+    var message;
+
+    switch(mes.slice(1)) {
         case 'joke':
             http.get(jokeUrl, function(res){
                 var body = '';
@@ -98,19 +99,17 @@ function messageHandler (message) {
 
                 res.on('end', function(){
                     var joke = JSON.parse(body);
-                        return(joke.value.joke)
+                        message = joke.value.joke;
                     });
                 });
             break
         case 'ping':
-            return('pong')
+            message = 'pong';
             break
         case 'bot':
-            return('Hi! I\'m the new twitch bot being made by Snow and SodaJett! Nice to meet you! Please look forward to more great features!')
+            message = 'Hi! I\'m the new twitch bot being made by Snow and SodaJett! Nice to meet you! Please look forward to more great features!';
     }
-}
 
-function messageSender (message, type, channel) {
     if(type === 'discord') {
         discord.sendMessage({
             to: channel,

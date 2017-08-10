@@ -51,7 +51,7 @@ discord.on('ready', function() {
 
 discord.on('message', function(user, userID, channelID, message, event) {
   	if (message.startsWith('!')) {
-        messageSender(messageHandler(message, 'discord'), 'discord', discordOptions.channels.testChannel);
+        messageSender(messageHandler(message), 'discord', discordOptions.channels.testChannel);
   	}
 });
 
@@ -72,7 +72,7 @@ twitch.on('message', function (channel, userstate, message, self) {
     if (self) return;
 
     if (message.startsWith('!')) {
-        messageSender(messageHandler(message, 'twitch'), 'twitch', twitchOptions.channels.sodaJett);
+        messageSender(messageHandler(message), 'twitch', twitchOptions.channels.sodaJett);
   	}
 });
 
@@ -85,7 +85,7 @@ twitch.on('message', function (channel, userstate, message, self) {
 //################### Message Handlers ###################################
 //########################################################################
 
-function messageHandler (message, type) {
+function messageHandler (message) {
     console.log(message)
     switch(message.slice(1)) {
         case 'joke':

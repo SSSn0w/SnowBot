@@ -25,7 +25,7 @@ var twitchOptions = {
         username: 'SSSnowBot',
         password: require('./getToken.js').twitchToken()
     },
-    channels: { sodaJett: 'sodajett'}
+    channels: { sssnowbot: 'sssnowbot' }
 };
 
 //Create Discord Bot
@@ -49,7 +49,7 @@ http.createServer(function(req, res) {});
 //Check if message starts with "!"
 discord.on('message', function(user, userID, channelID, message, event) {
   	if (message.startsWith('!')) {
-        messageHandler(message, 'discord', discordOptions.channels.testChannel);
+        require('./messageHandler.js').messageHandler(message, 'discord', discordOptions.channels.testChannel);
   	}
 });
 
@@ -72,7 +72,7 @@ twitch.on('message', function (channel, userstate, message, self) {
     if (self) return;
 
     if (message.startsWith('!')) {
-        messageHandler(message, 'twitch', twitchOptions.channels.sodaJett);
+        require('./messageHandler.js').messageHandler(message, 'twitch', twitchOptions.channels.sodaJett);
   	}
 });
 
@@ -80,54 +80,3 @@ twitch.on('message', function (channel, userstate, message, self) {
 twitch.on('join', function (channel, username, self) {
     twitch.action(options.channels[0], 'Hi @' + username + '! Welcome to the stream! Please enjoy your stay!');
 });
-
-//########################################################################
-//################### Bot Functions ######################################
-//########################################################################
-
-//Handles messages from Chat
-function messageHandler (mes, type, channel) {
-    var message;
-
-    switch(mes.slice(1)) {
-        case 'joke':
-            http.get(jokeUrl, function(res){
-                var body = '';
-
-                res.on('data', function(chunk){
-                    body += chunk;
-                });
-
-                res.on('end', function(){
-                    var joke = JSON.parse(body);
-
-                    if(type === 'discord') {
-                        discord.sendMessage({
-                            to: channel,
-                            message: joke.value.joke
-                        });
-                    }
-                    else if(type === 'twitch') {
-                        twitch.action(channel, joke.value.joke);
-                    }
-                });
-            });
-            break;
-        case 'ping':
-            message = 'pong';
-            break
-        case 'bot':
-            message = 'Hi! I\'m the new twitch bot being made by Snow and SodaJett! Nice to meet you! Please look forward to more great features!';
-            break;
-    }
-
-    if(type === 'discord') {
-        discord.sendMessage({
-            to: channel,
-            message: message
-        });
-    }
-    else if(type === 'twitch') {
-        twitch.action(channel, message);
-    }
-}

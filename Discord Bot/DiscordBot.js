@@ -1,36 +1,43 @@
-var Discord = require('discord.io');
+//########################################################################
+//################### Setup Bot ##########################################
+//########################################################################
 
-var bot = new Discord.Client({
-    token: require("./getToken.js").getToken(),
+//Dependancies
+var Discord = require('discord.io');
+var http = require('http');
+
+//Discord Bot Options
+var discordOptions = {
+    channels: { testChannel: '343294539467063298' }
+}
+
+//Create Discord Bot
+var discord = new Discord.Client({
+    token: require('./getToken.js').discordToken(),
     autorun: true
 });
 
-var NMID = "SnowBot";
+//Chuck Norris Jokes API
+var jokeUrl = 'http://api.icndb.com/jokes/random';
+http.createServer(function(req, res) {});
 
-bot.on('ready', function() {
-    console.log('Logged in as %s - %s\n', bot.username, bot.id);
-});
+//########################################################################
+//################### Discord Bot ########################################
+//########################################################################
 
-bot.on('message', function(user, userID, channelID, message, event) {
-    if (message === "ping" && user != NMID) {
-        bot.sendMessage({
-            to: channelID,
-            message: "pong"
-        });
-    }
-  	else if (message.indexOf("!joke") !== -1) {
-        bot.sendMessage({
-            to: channelID,
-            message: "Can a kangaroo jump higher than a house? \nOf course, a house doesn’t jump at all."
-        });
+//Check if message starts with "!"
+discord.on('message', function(user, userID, channelID, message, event) {
+  	if (message.startsWith('!')) {
+        require('./messageHandler.js').messageHandler(message, 'discord', discordOptions.channels.testChannel);
   	}
 });
 
-bot.on('presence', function(user, userID, status, game, event) {
-	if (status === "online") {
-		bot.sendMessage({
-            to: "343294539467063298",
-            message: "Hi <@" + userID + ">! Welcome to the channel! Please enjoy your stay!"
+//If someone joins the channel and is online, welcome them
+discord.on('presence', function(user, userID, status, game, event) {
+	if (status === 'online') {
+		discord.sendMessage({
+            to: discordOptions.channels.testChannel,
+            message: 'Hi <@' + userID + '>! Welcome to the channel! Please enjoy your stay!'
         });
 	}
 });

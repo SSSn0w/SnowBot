@@ -1,5 +1,5 @@
 function discordToken() {
-    return "MzQ0Mjg1NjgxMTgwMzQ0MzIx.DGsKqg.b8eOiz41eRUnk0xGAt3GVz5hfRQ";
+    return "";
 }
 
 function twitchToken() {

@@ -1,5 +1,5 @@
 function discordToken() {
-    return "Discord Token";
+    return "Discord Tokencvcv";
 }
 
 function twitchToken() {

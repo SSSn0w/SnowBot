@@ -9,7 +9,7 @@ var http = require('http');
 
 //Discord Bot Options
 var discordOptions = {
-    channels: { testChannel: '343294539467063298', teamTams: '350243415046225931' }
+    channels: { testChannel: '343294539467063298', teamTams: '350243415591747584' }
 }
 
 //Twitch Bot Options
@@ -55,7 +55,7 @@ http.createServer(function(req, res) {});
 //Check if message starts with "!"
 discord.on('message', function(user, userID, channelID, message, event) {
   	if (message.startsWith('!')) {
-        messageHandler(message, 'discord', discordOptions.channels.testChannel);
+        messageHandler(message, 'discord', discordOptions.channels.teamTams);
   	}
 });
 
@@ -63,7 +63,7 @@ discord.on('message', function(user, userID, channelID, message, event) {
 discord.on('presence', function(user, userID, status, game, event) {
 	if (status === 'online') {
 		discord.sendMessage({
-            to: discordOptions.channels.testChannel,
+            to: discordOptions.channels.teamTams,
             message: 'Hi <@' + userID + '>! Welcome to the channel! Please enjoy your stay!'
         });
 	}
@@ -80,7 +80,6 @@ twitch.on('message', function (channel, userstate, message, self) {
     if (message.startsWith('!')) {
         messageHandler(message, 'twitch', twitchOptions.channels.sssnowbot);
   	}
-    console.log("pong");
 });
 
 //If someone joins the stream and is online, welcome them

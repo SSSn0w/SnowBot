@@ -52,22 +52,22 @@ http.createServer(function(req, res) {});
 //################### Discord Bot ########################################
 //########################################################################
 
-//Check if message starts with "!"
 discord.on('message', function(user, userID, channelID, message, event) {
+    //Check if message starts with "!"
   	if (message.startsWith('!')) {
-        messageHandler(message, 'discord', discordOptions.channels.teamTams);
+        messageHandler(message, 'discord', channelID);
   	}
 });
 
 //If someone joins the channel and is online, welcome them
-discord.on('presence', function(user, userID, status, game, event) {
+/*discord.on('presence', function(user, userID, status, game, event) {
 	if (status === 'online') {
 		discord.sendMessage({
-            to: discordOptions.channels.teamTams,
+            to: channel,
             message: 'Hi <@' + userID + '>! Welcome to the channel! Please enjoy your stay!'
         });
 	}
-});
+});*/
 
 //########################################################################
 //################### Twitch Bot #########################################
@@ -83,9 +83,9 @@ twitch.on('message', function (channel, userstate, message, self) {
 });
 
 //If someone joins the stream and is online, welcome them
-twitch.on('join', function (channel, username, self) {
+/*twitch.on('join', function (channel, username, self) {
     twitch.action(options.channels[0], 'Hi @' + username + '! Welcome to the stream! Please enjoy your stay!');
-});
+});*/
 
 //########################################################################
 //################### Bot Functions ######################################

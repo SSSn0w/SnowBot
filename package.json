@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/SSSn0w/SnowBot#readme",
   "dependencies": {
-    "discord.io": "^2.5.1",
+    "discord.io": "^2.5.2",
+    "oversmash": "^1.2.2",
     "tmi": "^2.0.0",
     "tmi.js": "^1.2.1"
   }

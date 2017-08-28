@@ -31,7 +31,7 @@ console.log('Logged into Twitch Channel');
 var jokeUrl = 'http://api.icndb.com/jokes/random';
 
 //Overwatch API
-var owURL = 'https://owapi.net/api/v3/u/';
+var owURL = 'http://owapi.net/api/v3/u/';
 
 http.createServer(function(req, res) {});
 

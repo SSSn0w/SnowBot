@@ -6,6 +6,7 @@
 var Discord = require('discord.io');
 var tmi = require('tmi.js');
 var http = require('http');
+var request = require('request');
 
 //Discord Bot Options
 var discordOptions = {
@@ -44,7 +45,12 @@ console.log('Logged into Twitch Channel');
 var jokeUrl = 'http://api.icndb.com/jokes/random';
 
 //Overwatch API
-var owURL = 'http://owapi.net/api/v3/u/';
+var owURL = 'https://owapi.net/api/v3/u/';
+
+var request_options = {
+    url: owURL,
+    headers: {'User-Agent': 'Mozilla/5.0'},
+};
 
 http.createServer(function(req, res) {});
 
@@ -97,26 +103,18 @@ function messageHandler (mes, type, channel) {
     var fmes = mes.split(" ")[0];
     switch(fmes.slice(1)) {
         case 'joke':
-            http.get(jokeUrl, function(res){
-                var body = '';
+            request.get(jokeUrl, function (error, response, body) {
+                var joke = JSON.parse(body);
 
-                res.on('data', function(chunk){
-                    body += chunk;
-                });
-
-                res.on('end', function(){
-                    var joke = JSON.parse(body);
-
-                    if(type === 'discord') {
-                        discord.sendMessage({
-                            to: channel,
-                            message: joke.value.joke
-                        });
-                    }
-                    else if(type === 'twitch') {
-                        twitch.action(channel, joke.value.joke);
-                    }
-                });
+                if(type === 'discord') {
+                    discord.sendMessage({
+                        to: channel,
+                        message: joke.value.joke
+                    });
+                }
+                else if(type === 'twitch') {
+                    twitch.action(channel, joke.value.joke);
+                }
             });
             break
         case 'ping':
@@ -126,39 +124,32 @@ function messageHandler (mes, type, channel) {
             message = 'Hi! I\'m the new twitch bot being made by Snow! Nice to meet you! Please look forward to more great features!';
             break
         case 'ow-stats':
-            http.get(owURL + mes.split(" ")[1] + '/stats', function(res){
-                var body = '';
-
-                res.on('data', function(chunk){
-                    body += chunk;
-                });
-
-                res.on('end', function(){
-                    if(body === 'Not Found') {
-                        if(type === 'discord') {
-                            discord.sendMessage({
-                                to: channel,
-                                message: 'Error retrieving information'
-                            });
-                        }
-                        else if(type === 'twitch') {
-                            twitch.action(channel, 'Error retrieving information');
-                        }
+            request_options.url = owURL + mes.split(" ")[1] + '/stats';
+            request.get(request_options, function (error, response, body) {
+                if(error !== null) {
+                    if(type === 'discord') {
+                        discord.sendMessage({
+                            to: channel,
+                            message: 'Error retrieving information'
+                        });
                     }
-                    else {
-                        var stats = JSON.parse(body);
-
-                        if(type === 'discord') {
-                            discord.sendMessage({
-                                to: channel,
-                                message: 'Username: ' + mes.split(" ")[1] + '\n' + 'Level: ' + stats.us.stats.competitive.game_stats.overall_stats.level + '\n' + 'Rank: ' + stats.us.stats.competitive.game_stats.overall_stats.comprank
-                            });
-                        }
-                        else if(type === 'twitch') {
-                            twitch.action(channel, 'Username: ' + mes.split(" ")[1] + '\n' + 'Level: ' + stats.us.stats.competitive.game_stats.overall_stats.level + '\n' + 'Rank: ' + stats.us.stats.competitive.game_stats.overall_stats.comprank);
-                        }
+                    else if(type === 'twitch') {
+                        twitch.action(channel, 'Error retrieving information');
                     }
-                });
+                }
+                else {
+                    var stats = JSON.parse(body);
+
+                    if(type === 'discord') {
+                        discord.sendMessage({
+                            to: channel,
+                            message: 'Username: ' + mes.split(" ")[1] + '\n' + 'Level: ' + (stats.us.stats.competitive.overall_stats.prestige * 100 + stats.us.stats.competitive.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.competitive.overall_stats.comprank
+                        });
+                    }
+                    else if(type === 'twitch') {
+                        twitch.action(channel, 'Username: ' + mes.split(" ")[1] + '\n' + 'Level: ' + (stats.us.stats.competitive.overall_stats.prestige * 100 + stats.us.stats.competitive.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.competitive.overall_stats.comprank);
+                    }
+                }
             });
             break
     }

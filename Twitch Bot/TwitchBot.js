@@ -25,9 +25,14 @@ var twitchOptions = {
 //Create Twitch Bot
 var twitch = new tmi.client(twitchOptions.options);
 twitch.connect();
+console.log('Logged into Twitch Channel');
 
 //Chuck Norris Jokes API
 var jokeUrl = 'http://api.icndb.com/jokes/random';
+
+//Overwatch API
+var owURL = 'http://ow-api.herokuapp.com/profile/pc/us/';
+
 http.createServer(function(req, res) {});
 
 //########################################################################
@@ -39,11 +44,65 @@ twitch.on('message', function (channel, userstate, message, self) {
     if (self) return;
 
     if (message.startsWith('!')) {
-        require('./messageHandler.js').messageHandler(message, 'twitch', twitchOptions.channels.sodaJett);
+        messageHandler(message, 'twitch', twitchOptions.channels.sssnowbot);
   	}
 });
 
 //If someone joins the stream and is online, welcome them
-twitch.on('join', function (channel, username, self) {
+/*twitch.on('join', function (channel, username, self) {
     twitch.action(options.channels[0], 'Hi @' + username + '! Welcome to the stream! Please enjoy your stay!');
-});
+});*/
+
+//########################################################################
+//################### Bot Functions ######################################
+//########################################################################
+
+//Handles messages from Chat
+function messageHandler (mes, type, channel) {
+    var message;
+    var fmes = mes.split(" ")[0];
+    switch(fmes.slice(1)) {
+        case 'joke':
+            http.get(jokeUrl, function(res){
+                var body = '';
+
+                res.on('data', function(chunk){
+                    body += chunk;
+                });
+
+                res.on('end', function(){
+                    var joke = JSON.parse(body);
+
+                    twitch.action(channel, joke.value.joke);
+                });
+            });
+            break
+        case 'ping':
+            message = 'pong';
+            break
+        case 'bot':
+            message = 'Hi! I\'m the new twitch bot being made by Snow! Nice to meet you! Please look forward to more great features!';
+            break
+        case 'ow-stats':
+            http.get(owURL + mes.split(" ")[1], function(res){
+                var body = '';
+
+                res.on('data', function(chunk){
+                    body += chunk;
+                });
+
+                res.on('end', function(){
+                    if(body === 'Not Found') {
+                        twitch.action(channel, 'Error retrieving information');
+                    }
+                    else {
+                        var stats = JSON.parse(body);
+
+                        twitch.action(channel, 'Username: ' + stats.username + '\n' + 'Level: ' + stats.level + '\n' + 'Rank: ' + stats.competitive.rank)
+                    }
+                });
+            });
+            break
+    }
+    twitch.action(channel, message);
+}

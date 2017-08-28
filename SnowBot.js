@@ -44,7 +44,7 @@ console.log('Logged into Twitch Channel');
 var jokeUrl = 'http://api.icndb.com/jokes/random';
 
 //Overwatch API
-var owURL = 'http://ow-api.herokuapp.com/profile/pc/us/';
+var owURL = 'https://owapi.net/api/v3/u/';
 
 http.createServer(function(req, res) {});
 
@@ -126,7 +126,7 @@ function messageHandler (mes, type, channel) {
             message = 'Hi! I\'m the new twitch bot being made by Snow! Nice to meet you! Please look forward to more great features!';
             break
         case 'ow-stats':
-            http.get(owURL + mes.split(" ")[1], function(res){
+            http.get(owURL + mes.split(" ")[1] + '/stats', function(res){
                 var body = '';
 
                 res.on('data', function(chunk){
@@ -151,11 +151,11 @@ function messageHandler (mes, type, channel) {
                         if(type === 'discord') {
                             discord.sendMessage({
                                 to: channel,
-                                message: 'Username: ' + stats.username + '\n' + 'Level: ' + stats.level + '\n' + 'Rank: ' + stats.competitive.rank
+                                message: 'Username: ' + mes.split(" ")[1] + '\n' + 'Level: ' + stats.us.stats.competitive.game_stats.overall_stats.level + '\n' + 'Rank: ' + stats.us.stats.competitive.game_stats.overall_stats.comprank
                             });
                         }
                         else if(type === 'twitch') {
-                            twitch.action(channel, 'Username: ' + stats.username + '\n' + 'Level: ' + stats.level + '\n' + 'Rank: ' + stats.competitive.rank);
+                            twitch.action(channel, 'Username: ' + mes.split(" ")[1] + '\n' + 'Level: ' + stats.us.stats.competitive.game_stats.overall_stats.level + '\n' + 'Rank: ' + stats.us.stats.competitive.game_stats.overall_stats.comprank);
                         }
                     }
                 });

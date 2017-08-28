@@ -22,7 +22,7 @@ console.log('Logged into Discord Server');
 var jokeUrl = 'http://api.icndb.com/jokes/random';
 
 //Overwatch API
-var owURL = 'http://ow-api.herokuapp.com/profile/pc/us/';
+var owURL = 'https://owapi.net/api/v3/u/';
 
 http.createServer(function(req, res) {});
 
@@ -100,7 +100,7 @@ function messageHandler (mes, type, channel) {
 
                         discord.sendMessage({
                             to: channel,
-                            message: 'Username: ' + stats.username + '\n' + 'Level: ' + stats.level + '\n' + 'Rank: ' + stats.competitive.rank
+                            message: 'Username: ' + mes.split(" ")[1] + '\n' + 'Level: ' + stats.us.stats.competitive.game_stats.overall_stats.level + '\n' + 'Rank: ' + stats.us.stats.competitive.game_stats.overall_stats.comprank
                         });
                     }
                 });

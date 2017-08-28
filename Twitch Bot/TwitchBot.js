@@ -31,7 +31,7 @@ console.log('Logged into Twitch Channel');
 var jokeUrl = 'http://api.icndb.com/jokes/random';
 
 //Overwatch API
-var owURL = 'http://ow-api.herokuapp.com/profile/pc/us/';
+var owURL = 'https://owapi.net/api/v3/u/';
 
 http.createServer(function(req, res) {});
 
@@ -98,7 +98,7 @@ function messageHandler (mes, type, channel) {
                     else {
                         var stats = JSON.parse(body);
 
-                        twitch.action(channel, 'Username: ' + stats.username + '\n' + 'Level: ' + stats.level + '\n' + 'Rank: ' + stats.competitive.rank)
+                        twitch.action(channel, 'Username: ' + mes.split(" ")[1] + '\n' + 'Level: ' + stats.us.stats.competitive.game_stats.overall_stats.level + '\n' + 'Rank: ' + stats.us.stats.competitive.game_stats.overall_stats.comprank);
                     }
                 });
             });

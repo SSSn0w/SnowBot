@@ -211,8 +211,11 @@ function messageHandler (mes, type, channel) {
                 }
             });
             break
-        case 'add-temp':
+        case 'add':
             addedCommands[mes.split(" ")[1]] = mes.split(mes.split(" ")[1])[1];
+            break
+        case 'rem':
+            delete addedCommands[mes.split(" ")[1]];
             break
         default :
             if(fmes.slice(1) in addedCommands) {

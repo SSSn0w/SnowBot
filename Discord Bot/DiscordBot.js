@@ -66,15 +66,10 @@ function messageHandler (mes, type, channel) {
             request.get(jokeUrl, function (error, response, body) {
                 var joke = JSON.parse(body);
 
-                if(type === 'discord') {
-                    discord.sendMessage({
-                        to: channel,
-                        message: joke.value.joke
-                    });
-                }
-                else if(type === 'twitch') {
-                    twitch.action(channel, joke.value.joke);
-                }
+                discord.sendMessage({
+                    to: channel,
+                    message: joke.value.joke
+                });
             });
             break
         case 'ping':
@@ -84,7 +79,12 @@ function messageHandler (mes, type, channel) {
             message = 'Hi! I\'m the new twitch bot being made by Snow! Nice to meet you! Please look forward to more great features!';
             break
         case 'ow-stats':
-            request_options.url = owURL + mes.split(" ")[1] + '/stats';
+            if(mes.split(" ")[2] === "hero") {
+                request_options.url = owURL + mes.split(" ")[1] + '/heroes';
+            }
+            else {
+                request_options.url = owURL + mes.split(" ")[1] + '/stats';
+            }
             request.get(request_options, function (error, response, body) {
                 if(error !== null) {
                     discord.sendMessage({
@@ -92,12 +92,44 @@ function messageHandler (mes, type, channel) {
                         message: 'Error retrieving information'
                     });
                 }
+                else if(mes.split(" ")[2] === "hero") {
+                    var stats = JSON.parse(body);
+
+                    if(mes.split(" ")[3] === "qp") {
+                        try {
+                            discord.sendMessage({
+                                to: channel,
+                                message: 'Username: ' + mes.split(" ")[1] + '\n' + '\n' + 'Hero: ' + mes.split(" ")[4] + '\n' + 'Gamemode: Quickplay' + '\n' + '\n' + 'Games Won: ' + stats.us.heroes.stats.quickplay[mes.split(" ")[4]].general_stats.games_won + '\n' + 'K/D: ' + stats.us.heroes.stats.quickplay[mes.split(" ")[4]].general_stats.eliminations_per_life + '\n' + 'Weapon Accuracy: ' + (stats.us.heroes.stats.quickplay[mes.split(" ")[4]].general_stats.weapon_accuracy * 100) + '%'
+                            });
+                        }
+                        catch(e) {
+                            discord.sendMessage({
+                                to: channel,
+                                message: 'Error retrieving information'
+                            });
+                        }
+                    }
+                    else if(mes.split(" ")[3] === "comp") {
+                        try {
+                            discord.sendMessage({
+                                to: channel,
+                                message: 'Username: ' + mes.split(" ")[1] + '\n' + '\n' + 'Hero: ' + mes.split(" ")[4] + '\n' + 'Gamemode: Competitive' + '\n' + '\n' + 'Games Won: ' + stats.us.heroes.stats.competitive[mes.split(" ")[4]].general_stats.games_won + '\n' + 'Win Percentage: ' + (stats.us.heroes.stats.competitive[mes.split(" ")[4]].general_stats.win_percentage * 100) + '%' + '\n' + 'K/D: ' + stats.us.heroes.stats.competitive[mes.split(" ")[4]].general_stats.eliminations_per_life + '\n' + 'Weapon Accuracy: ' + (stats.us.heroes.stats.competitive[mes.split(" ")[4]].general_stats.weapon_accuracy * 100) + '%'
+                            });
+                        }
+                        catch(e) {
+                            discord.sendMessage({
+                                to: channel,
+                                message: 'Error retrieving information'
+                            });
+                        }
+                    }
+                }
                 else {
                     var stats = JSON.parse(body);
 
                     discord.sendMessage({
                         to: channel,
-                        message: 'Username: ' + mes.split(" ")[1] + '\n' + 'Level: ' + (stats.us.stats.competitive.overall_stats.prestige * 100 + stats.us.stats.competitive.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.competitive.overall_stats.comprank
+                        message: 'Username: ' + mes.split(" ")[1] + '\n' + '\n' + 'Level: ' + (stats.us.stats.competitive.overall_stats.prestige * 100 + stats.us.stats.competitive.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.competitive.overall_stats.comprank
                     });
                 }
             });

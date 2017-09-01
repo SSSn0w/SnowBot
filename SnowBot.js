@@ -29,6 +29,8 @@ var twitchOptions = {
     channels: { sssnowbot: 'sssnowbot' }
 };
 
+var addedCommands = {}
+
 //Create Discord Bot
 var discord = new Discord.Client({
     token: require('./getToken.js').discordToken(),
@@ -208,6 +210,22 @@ function messageHandler (mes, type, channel) {
                     }
                 }
             });
+            break
+        case 'add-temp':
+            addedCommands[mes.split(" ")[1]] = mes.split(mes.split(" ")[1])[1];
+            break
+        default :
+            if(fmes.slice(1) in addedCommands) {
+                if(type === 'discord') {
+                    discord.sendMessage({
+                        to: channel,
+                        message: addedCommands[fmes.slice(1)]
+                    });
+                }
+                else if(type === 'twitch') {
+                    twitch.action(channel, addedCommands[fmes.slice(1)]);
+                }
+            }
             break
     }
 

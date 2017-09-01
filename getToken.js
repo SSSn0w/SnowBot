@@ -1,9 +1,9 @@
 function discordToken() {
-    return "Discord Token";
+    return "MzQ0Mjg1NjgxMTgwMzQ0MzIx.DIptag.o2OP5D6vStpG4pg6bWZ1diW0fVY";
 }
 
 function twitchToken() {
-    return "Twitch Token";
+    return "oauth:t388lod5pc6tx288xjig5h9amgabsz";
 }
 
 module.exports.discordToken = discordToken;

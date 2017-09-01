@@ -115,7 +115,7 @@ function messageHandler (mes, type, channel) {
                 else {
                     var stats = JSON.parse(body);
 
-                    twitch.action(channel, 'Username: ' + mes.split(" ")[1] + '\n' + '\n' + 'Level: ' + (stats.us.stats.competitive.overall_stats.prestige * 100 + stats.us.stats.competitive.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.competitive.overall_stats.comprank);
+                    twitch.action(channel, 'Username: ' + mes.split(" ")[1] + '\n' + '\n' + 'Level: ' + (stats.us.stats.quickplay.overall_stats.prestige * 100 + stats.us.stats.quickplay.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.quickplay.overall_stats.comprank);
                 }
             });
             break

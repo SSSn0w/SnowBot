@@ -200,11 +200,11 @@ function messageHandler (mes, type, channel) {
                     if(type === 'discord') {
                         discord.sendMessage({
                             to: channel,
-                            message: 'Username: ' + mes.split(" ")[1] + '\n' + '\n' + 'Level: ' + (stats.us.stats.competitive.overall_stats.prestige * 100 + stats.us.stats.competitive.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.competitive.overall_stats.comprank
+                            message: 'Username: ' + mes.split(" ")[1] + '\n' + '\n' + 'Level: ' + (stats.us.stats.quickplay.overall_stats.prestige * 100 + stats.us.stats.quickplay.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.quickplay.overall_stats.comprank
                         });
                     }
                     else if(type === 'twitch') {
-                        twitch.action(channel, 'Username: ' + mes.split(" ")[1] + '\n' + '\n' + 'Level: ' + (stats.us.stats.competitive.overall_stats.prestige * 100 + stats.us.stats.competitive.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.competitive.overall_stats.comprank);
+                        twitch.action(channel, 'Username: ' + mes.split(" ")[1] + '\n' + '\n' + 'Level: ' + (stats.us.stats.quickplay.overall_stats.prestige * 100 + stats.us.stats.quickplay.overall_stats.level) + '\n' + 'Rank: ' + stats.us.stats.quickplay.overall_stats.comprank);
                     }
                 }
             });

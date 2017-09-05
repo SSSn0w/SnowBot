@@ -7,6 +7,7 @@ var Discord = require('discord.io');
 var tmi = require('tmi.js');
 var http = require('http');
 var request = require('request');
+var jsonfile = require('jsonfile');
 
 //Discord Bot Options
 var discordOptions = {
@@ -29,7 +30,11 @@ var twitchOptions = {
     channels: { sssnowbot: 'sssnowbot' }
 };
 
-var addedCommands = {}
+var addedCommands;
+jsonfile.readFile('./addedCommands.json', function(err, obj) {
+    addedCommands = obj;
+});
+console.log(addedCommands);
 
 //Create Discord Bot
 var discord = new Discord.Client({
@@ -213,9 +218,15 @@ function messageHandler (mes, type, channel) {
             break
         case 'add':
             addedCommands[mes.split(" ")[1]] = mes.split(mes.split(" ")[1])[1];
+            jsonfile.writeFile('./addedCommands.json', addedCommands, function(err) {
+                console.error(err);
+            });
             break
         case 'rem':
             delete addedCommands[mes.split(" ")[1]];
+            jsonfile.writeFile('./addedCommands.json', addedCommands, function(err) {
+                console.error(err);
+            });
             break
         default :
             if(fmes.slice(1) in addedCommands) {

@@ -7,7 +7,6 @@ var Discord = require('discord.io');
 var tmi = require('tmi.js');
 var http = require('http');
 var request = require('request');
-var jsonfile = require('jsonfile');
 
 //Discord Bot Options
 var discordOptions = {
@@ -31,10 +30,15 @@ var twitchOptions = {
 };
 
 var addedCommands;
-jsonfile.readFile('./addedCommands.json', function(err, obj) {
-    addedCommands = obj;
+request.get('Server/Website addedCommands.json is stored e.g. website.me/addedCommands.json', function (error, response, body) {
+    if(error !== null) {
+        console.log(error);
+    }
+    else {
+        addedCommands = JSON.parse(body);
+        console.log(body);
+    }
 });
-console.log(addedCommands);
 
 //Create Discord Bot
 var discord = new Discord.Client({
@@ -218,14 +222,24 @@ function messageHandler (mes, type, channel) {
             break
         case 'add':
             addedCommands[mes.split(" ")[1]] = mes.split(mes.split(" ")[1])[1];
-            jsonfile.writeFile('./addedCommands.json', addedCommands, function(err) {
-                console.error(err);
+            request.get('Server/Website script to edit addedCommands.json e.g. website.me/script.php?add=' + JSON.stringify(addedCommands), function (error, response, body) {
+                if(error !== null) {
+                    console.log(error);
+                }
+                else {
+                    console.log("done");
+                }
             });
             break
         case 'rem':
             delete addedCommands[mes.split(" ")[1]];
-            jsonfile.writeFile('./addedCommands.json', addedCommands, function(err) {
-                console.error(err);
+            request.get('Server/Website script to edit addedCommands.json e.g. website.me/script.php?add=' + JSON.stringify(addedCommands), function (error, response, body) {
+                if(error !== null) {
+                    console.log(error);
+                }
+                else {
+                    console.log("done");
+                }
             });
             break
         default :

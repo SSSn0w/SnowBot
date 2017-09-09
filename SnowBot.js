@@ -30,7 +30,7 @@ var twitchOptions = {
 };
 
 var addedCommands;
-request.get('Server/Website addedCommands.json is stored e.g. website.me/addedCommands.json', function (error, response, body) {
+request.get('Added Commands JSON File', function (error, response, body) {
     if(error !== null) {
         console.log(error);
     }
@@ -53,7 +53,9 @@ twitch.connect();
 console.log('Logged into Twitch Channel');
 
 //Chuck Norris Jokes API
-var jokeUrl = 'http://api.icndb.com/jokes/random';
+var chuckURL = 'http://api.icndb.com/jokes/random';
+//Dad Jokes API
+var jokeURL = 'https://icanhazdadjoke.com/slack';
 
 //Overwatch API
 var owURL = 'https://owapi.net/api/v3/u/';
@@ -113,8 +115,8 @@ function messageHandler (mes, type, channel) {
     var message;
     var fmes = mes.split(" ")[0];
     switch(fmes.slice(1)) {
-        case 'joke':
-            request.get(jokeUrl, function (error, response, body) {
+        case 'chucknorris':
+            request.get(chuckURL, function (error, response, body) {
                 var joke = JSON.parse(body);
 
                 if(type === 'discord') {
@@ -128,6 +130,21 @@ function messageHandler (mes, type, channel) {
                 }
             });
             break
+        case 'joke':
+            request.get(jokeURL, function (error, response, body) {
+                var joke = JSON.parse(body);
+
+                if(type === 'discord') {
+                    discord.sendMessage({
+                        to: channel,
+                        message: joke.attachments[0].text
+                    });
+                }
+                else if(type === 'twitch') {
+                    twitch.action(channel, joke.attachments[0].text);
+                }
+                });
+                break
         case 'ping':
             message = 'pong';
             break
@@ -142,7 +159,7 @@ function messageHandler (mes, type, channel) {
                 request_options.url = owURL + mes.split(" ")[1] + '/stats';
             }
             request.get(request_options, function (error, response, body) {
-                if(error !== null) {
+                if(error !== null || JSON.parse(body).error === 404) {
                     if(type === 'discord') {
                         discord.sendMessage({
                             to: channel,
@@ -222,18 +239,19 @@ function messageHandler (mes, type, channel) {
             break
         case 'add':
             addedCommands[mes.split(" ")[1]] = mes.split(mes.split(" ")[1])[1];
-            request.get('Server/Website script to edit addedCommands.json e.g. website.me/script.php?add=' + JSON.stringify(addedCommands), function (error, response, body) {
+            request.get('Added Commands JSON File' + JSON.stringify(addedCommands), function (error, response, body) {
                 if(error !== null) {
                     console.log(error);
                 }
                 else {
                     console.log("done");
+                    console.log(addedCommands);
                 }
             });
             break
         case 'rem':
             delete addedCommands[mes.split(" ")[1]];
-            request.get('Server/Website script to edit addedCommands.json e.g. website.me/script.php?add=' + JSON.stringify(addedCommands), function (error, response, body) {
+            request.get('Added Commands JSON File' + JSON.stringify(addedCommands), function (error, response, body) {
                 if(error !== null) {
                     console.log(error);
                 }

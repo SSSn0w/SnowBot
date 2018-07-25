@@ -19,7 +19,7 @@ public class Roll extends Command{
     public MessageEmbed roll(int max) {
         EmbedBuilder embed = new EmbedBuilder();
         return embed.setColor(new Color(0x3598db))
-                .setTitle("You rolled: " + new Random().nextInt(max + 1), null)
+                .setTitle("You rolled: " + (new Random().nextInt(max) + 1), null)
                 .setAuthor("Roll", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
                 .setFooter("Max value: " + max, null)
                 .build();

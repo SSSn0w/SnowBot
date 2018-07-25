@@ -22,7 +22,7 @@ public class SnowBot {
     public SnowBot(String botToken) {
         try {
             SnowBot.jda = new JDABuilder(AccountType.BOT)
-                    .setGame(Game.playing("16 Bit Hero"))
+                    .setGame(Game.playing("16 Bit Hero | sb!help"))
                     .setToken(botToken)
                     .addEventListener(new snowbot.CommandHandler())
                     .buildAsync();

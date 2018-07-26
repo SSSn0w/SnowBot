@@ -1,6 +1,8 @@
 package snowbot;
 
-import java.util.Scanner;
+import java.io.*;
+import java.nio.file.*;
+import static java.nio.file.StandardOpenOption.CREATE;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -12,11 +14,26 @@ public class SnowBot {
     public static JDA jda;
     
     public static void main(String[] args) throws LoginException, RateLimitedException, InterruptedException {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Enter token: ");
-        String botToken = sc.next();
+        new SnowBot(read("config.txt"));
+    }
+    
+    public static String read(String filePath) {
+        Path file = Paths.get(filePath);
+        String text = null;
         
-        new SnowBot(botToken);
+        InputStream input = null;
+        
+        try {
+            input = Files.newInputStream(file);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            text = reader.readLine();
+            input.close();
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+        
+        return text;
     }
     
     public SnowBot(String botToken) {

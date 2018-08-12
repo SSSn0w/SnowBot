@@ -2,7 +2,6 @@ package snowbot;
 
 import java.io.*;
 import java.nio.file.*;
-import static java.nio.file.StandardOpenOption.CREATE;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;

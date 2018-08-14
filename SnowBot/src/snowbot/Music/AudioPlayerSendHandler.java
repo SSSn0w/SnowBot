@@ -1,4 +1,4 @@
-package snowbot;
+package snowbot.Music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
@@ -14,13 +14,23 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
 
     @Override
     public boolean canProvide() {
-        lastFrame = audioPlayer.provide();
+        if (lastFrame == null) {
+          lastFrame = audioPlayer.provide();
+        }
+
         return lastFrame != null;
     }
 
     @Override
     public byte[] provide20MsAudio() {
-        return lastFrame.getData();
+        if (lastFrame == null) {
+            lastFrame = audioPlayer.provide();
+        }
+
+        byte[] data = lastFrame != null ? lastFrame.getData() : null;
+        lastFrame = null;
+
+        return data;
     }
 
     @Override

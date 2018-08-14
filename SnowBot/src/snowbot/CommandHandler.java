@@ -11,8 +11,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public class CommandHandler extends ListenerAdapter {
-    private String commandPrefix = "sb!";
-    private String musicPrefix = "$";
+    private final String commandPrefix = "sb!";
+    private final String musicPrefix = "$";
     public static ArrayList<Command> commands = new ArrayList<Command>();
     
     private Music musicInst = new Music();
@@ -20,7 +20,6 @@ public class CommandHandler extends ListenerAdapter {
     
     public CommandHandler() {
         addCommands();
-        
     }
     
     public void addCommands() {
@@ -59,13 +58,12 @@ public class CommandHandler extends ListenerAdapter {
                 + "\n\nType **sb!help** to see a list of commands!").queue();
         }
         else if(event.getMessage().getContentDisplay().startsWith(musicPrefix)) {
-            musicInst.setCommand(event.getMessage().getContentRaw().split("\\" + musicPrefix)[1]);
+            musicInst.setCommand(event.getMessage().getContentRaw().split("\\" + musicPrefix)[1].split(" ")[0]);
             String[] input = event.getMessage().getContentRaw().split("\\" + musicPrefix)[1].split(" ");
             
             if(input.length > 1) {
-                args = Arrays.copyOfRange(input, 2, input.length);
-                System.out.println(args.length);
-                //event.getChannel().sendMessage(musicInst.runCommand(event, args)).queue();
+                args = Arrays.copyOfRange(input, 1, input.length);
+                event.getChannel().sendMessage(musicInst.runCommand(event, args)).queue();
             }
             else {
                 event.getChannel().sendMessage(musicInst.runCommand(event)).queue();

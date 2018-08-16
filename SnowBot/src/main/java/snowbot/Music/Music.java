@@ -72,6 +72,8 @@ public class Music {
         
         MessageReceivedEvent event = commandEvent;
         
+        
+        
         VoiceChannel connectedChannel = event.getMember().getVoiceState().getChannel();
         AudioManager audioManager = event.getGuild().getAudioManager();
         

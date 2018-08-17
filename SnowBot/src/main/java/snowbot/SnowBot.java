@@ -16,6 +16,19 @@ public class SnowBot {
         new SnowBot(Read("config.txt"));
     }
     
+    public SnowBot(String botToken) {
+        try {
+            SnowBot.jda = new JDABuilder(AccountType.BOT)
+                    .setGame(Game.playing("16 Bit Hero | sb!help"))
+                    .setToken(botToken)
+                    .addEventListener(new snowbot.CommandHandler())
+                    .buildAsync();
+        }
+        catch(LoginException e) {
+            System.out.println(e);
+        }
+    }
+    
     public static String Read(String filePath) {
         Path file = Paths.get(filePath);
         String text = null;
@@ -33,18 +46,5 @@ public class SnowBot {
         }
         
         return text;
-    }
-    
-    public SnowBot(String botToken) {
-        try {
-            SnowBot.jda = new JDABuilder(AccountType.BOT)
-                    .setGame(Game.playing("16 Bit Hero | sb!help"))
-                    .setToken(botToken)
-                    .addEventListener(new snowbot.CommandHandler())
-                    .buildAsync();
-        }
-        catch(LoginException e) {
-            System.out.println(e);
-        }
     }
 }

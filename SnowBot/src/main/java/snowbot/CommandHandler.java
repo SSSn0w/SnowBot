@@ -24,18 +24,6 @@ public class CommandHandler extends ListenerAdapter {
         addCommands();
     }
     
-    public void addCommands() {
-        commands = new ArrayList<>();
-        
-        commands.add(new Ping());
-        commands.add(new MoralSupport());
-        commands.add(new Role());
-        commands.add(new Roll());
-        
-        //Add help last
-        commands.add(new Help());
-    }
-    
     @Override
     public void onMessageReceived(MessageReceivedEvent event)
     {  
@@ -75,5 +63,17 @@ public class CommandHandler extends ListenerAdapter {
                 event.getChannel().sendMessage(musicInst.runCommand(event)).queue();
             }
         }
+    }
+    
+    public void addCommands() {
+        commands = new ArrayList<>();
+        
+        commands.add(new Ping());
+        commands.add(new MoralSupport());
+        commands.add(new Role());
+        commands.add(new Roll());
+        
+        //Add help last
+        commands.add(new Help());
     }
 }

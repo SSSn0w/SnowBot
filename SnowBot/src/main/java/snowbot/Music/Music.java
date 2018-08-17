@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import java.awt.Color;
 import java.io.IOException;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -19,9 +20,9 @@ import net.dv8tion.jda.core.managers.AudioManager;
 public class Music {
     private String command = "";
     private final String musicPrefix = "$";
-    private AudioPlayerManager playerManager;
-    private AudioPlayer player;
-    private TrackScheduler trackScheduler;
+    private final AudioPlayerManager playerManager;
+    private final AudioPlayer player;
+    private final TrackScheduler trackScheduler;
     
     public Music() {
         playerManager = new DefaultAudioPlayerManager();
@@ -42,6 +43,10 @@ public class Music {
                 return Play(event);
             case "end":
                 return End(event);
+            case "now":
+                return Now(event);
+            case "skip":
+                return Skip(event);
             default:
                 return null;
         }
@@ -53,12 +58,16 @@ public class Music {
                 return Play(event, String.join(" ", args));
             case "end":
                 return End(event);
+            case "now":
+                return Now(event);
+            case "skip":
+                return Skip(event);
             default:
                 return null;
         }
     }
     
-    public MessageEmbed Play(MessageReceivedEvent commandEvent) {
+    private MessageEmbed Play(MessageReceivedEvent commandEvent) {
         EmbedBuilder embed = new EmbedBuilder();
         
         return embed.setColor(new Color(0x3598db))
@@ -68,7 +77,7 @@ public class Music {
                 .build();
     }
     
-    public MessageEmbed Play(MessageReceivedEvent commandEvent, String song) throws IOException {
+    private MessageEmbed Play(MessageReceivedEvent commandEvent, String song) throws IOException {
         EmbedBuilder embed = new EmbedBuilder();
         
         MessageReceivedEvent event = commandEvent;
@@ -107,23 +116,42 @@ public class Music {
         audioManager.openAudioConnection(connectedChannel);
         
         return embed.setColor(new Color(0x3598db))
-                .setTitle("Now playing", null)
+                .setTitle("Track Queued", null)
                 .setDescription(ytSearch.returnTitle())
                 .setAuthor("Music", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
                 .build();
     }
     
-    public MessageEmbed End(MessageReceivedEvent commandEvent) {
+    private MessageEmbed End(MessageReceivedEvent commandEvent) {
         EmbedBuilder embed = new EmbedBuilder();
-        
+
         MessageReceivedEvent event = commandEvent;
         AudioManager audioManager = event.getGuild().getAudioManager();
-        playerManager.shutdown();
+        player.destroy();
         audioManager.closeAudioConnection();
         
         return embed.setColor(new Color(0x3598db))
                 .setTitle("Queue ended", null)
                 .setAuthor("Music", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
                 .build();
+    }
+    
+    private MessageEmbed Now(MessageReceivedEvent commandEvent) {
+        EmbedBuilder embed = new EmbedBuilder();
+        
+        return embed.setColor(new Color(0x3598db))
+                .setTitle("Now Playing", null)
+                .setDescription(player.getPlayingTrack().getInfo().title)
+                .setAuthor("Music", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
+                .build();
+    }
+    
+    private MessageEmbed Skip(MessageReceivedEvent commandEvent) {
+        try {
+            trackScheduler.nextTrack();
+            return Now(commandEvent);
+        } catch(Exception e) {
+            return End(commandEvent);
+        }
     }
 }

@@ -1,12 +1,14 @@
 package snowbot;
 
+import java.io.IOException;
 import snowbot.Commands.*;
 import snowbot.Music.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -15,7 +17,7 @@ public class CommandHandler extends ListenerAdapter {
     private final String musicPrefix = "$";
     public static ArrayList<Command> commands = new ArrayList<Command>();
     
-    private Music musicInst = new Music();
+    private final Music musicInst = new Music();
     private String[] args;
     
     public CommandHandler() {
@@ -23,7 +25,7 @@ public class CommandHandler extends ListenerAdapter {
     }
     
     public void addCommands() {
-        commands = new ArrayList<Command>();
+        commands = new ArrayList<>();
         
         commands.add(new Ping());
         commands.add(new MoralSupport());
@@ -63,7 +65,11 @@ public class CommandHandler extends ListenerAdapter {
             
             if(input.length > 1) {
                 args = Arrays.copyOfRange(input, 1, input.length);
-                event.getChannel().sendMessage(musicInst.runCommand(event, args)).queue();
+                try {
+                    event.getChannel().sendMessage(musicInst.runCommand(event, args)).queue();
+                } catch (IOException ex) {
+                    Logger.getLogger(CommandHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             else {
                 event.getChannel().sendMessage(musicInst.runCommand(event)).queue();

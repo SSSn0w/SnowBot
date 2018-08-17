@@ -13,10 +13,10 @@ public class SnowBot {
     public static JDA jda;
     
     public static void main(String[] args) throws LoginException, RateLimitedException, InterruptedException {
-        new SnowBot(read("config.txt"));
+        new SnowBot(Read("config.txt"));
     }
     
-    public static String read(String filePath) {
+    public static String Read(String filePath) {
         Path file = Paths.get(filePath);
         String text = null;
         

@@ -9,6 +9,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import java.awt.Color;
+import java.io.IOException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -46,7 +47,7 @@ public class Music {
         }
     }
     
-    public MessageEmbed runCommand(MessageReceivedEvent event, String[] args) {
+    public MessageEmbed runCommand(MessageReceivedEvent event, String[] args) throws IOException {
         switch (command) {
             case "play":
                 return Play(event, String.join(" ", args));
@@ -67,18 +68,19 @@ public class Music {
                 .build();
     }
     
-    public MessageEmbed Play(MessageReceivedEvent commandEvent, String song) {
+    public MessageEmbed Play(MessageReceivedEvent commandEvent, String song) throws IOException {
         EmbedBuilder embed = new EmbedBuilder();
         
         MessageReceivedEvent event = commandEvent;
         
-        
+        YoutubeSearch ytSearch = new YoutubeSearch(song);
+        String songID = ytSearch.returnID();
         
         VoiceChannel connectedChannel = event.getMember().getVoiceState().getChannel();
         AudioManager audioManager = event.getGuild().getAudioManager();
         
         audioManager.setSendingHandler(new AudioPlayerSendHandler(player));
-        playerManager.loadItem(song, new AudioLoadResultHandler() {
+        playerManager.loadItem(songID, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
                 trackScheduler.queue(track);
@@ -106,7 +108,7 @@ public class Music {
         
         return embed.setColor(new Color(0x3598db))
                 .setTitle("Now playing", null)
-                .setDescription(song)
+                .setDescription(ytSearch.returnTitle())
                 .setAuthor("Music", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
                 .build();
     }

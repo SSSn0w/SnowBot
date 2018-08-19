@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -47,6 +48,8 @@ public class Music {
                 return Now(event);
             case "skip":
                 return Skip(event);
+            case "queue":
+                return Queue(event);
             default:
                 return null;
         }
@@ -62,6 +65,8 @@ public class Music {
                 return Now(event);
             case "skip":
                 return Skip(event);
+            case "queue":
+                return Queue(event);
             default:
                 return null;
         }
@@ -153,5 +158,21 @@ public class Music {
         } catch(Exception e) {
             return End(commandEvent);
         }
+    }
+    
+    private MessageEmbed Queue(MessageReceivedEvent commandEvent) {
+        EmbedBuilder embed = new EmbedBuilder();
+        String list = "";
+        
+        ArrayList<AudioTrack> arrayQueue = new ArrayList(trackScheduler.queue);
+        for(int i = 0; i < arrayQueue.size(); i++) {
+            list += (i + 1) + ". " + arrayQueue.get(i).getInfo().title + "\n";
+        }
+        
+        return embed.setColor(new Color(0x3598db))
+                .setTitle("Queue", null)
+                .setDescription(list)
+                .setAuthor("Music", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
+                .build();
     }
 }

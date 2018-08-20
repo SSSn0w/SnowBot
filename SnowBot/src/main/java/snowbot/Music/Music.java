@@ -1,37 +1,39 @@
 package snowbot.Music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.managers.AudioManager;
 
-public class Music {
+public class Music extends AudioEventAdapter {
     private String command = "";
-    private final String musicPrefix = "$";
     private final AudioPlayerManager playerManager;
-    private final AudioPlayer player;
-    private final TrackScheduler trackScheduler;
+    private final Map<Long, GuildMusicManager> musicManagers;
+    private final BlockingQueue<AudioTrack> queue = new LinkedBlockingQueue<>();
+    private Guild guild;
     
     public Music() {
-        playerManager = new DefaultAudioPlayerManager();
+        this.musicManagers = new HashMap<>();
+        this.playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
-        
-        player = playerManager.createPlayer();
-        trackScheduler = new TrackScheduler(player);
-        player.addListener(trackScheduler);
+        AudioSourceManagers.registerLocalSource(playerManager);
     }
     
     public void setCommand(String cmd) {
@@ -39,6 +41,8 @@ public class Music {
     }
     
     public MessageEmbed runCommand(MessageReceivedEvent event) {
+        guild = event.getGuild();
+        
         switch (command) {
             case "play":
                 return Play(event);
@@ -56,6 +60,8 @@ public class Music {
     }
     
     public MessageEmbed runCommand(MessageReceivedEvent event, String[] args) throws IOException {
+        guild = event.getGuild();
+        
         switch (command) {
             case "play":
                 return Play(event, String.join(" ", args));
@@ -72,6 +78,20 @@ public class Music {
         }
     }
     
+    private synchronized GuildMusicManager getGuildAudioPlayer(Guild guild) {
+        long guildId = Long.parseLong(guild.getId());
+        GuildMusicManager musicManager = musicManagers.get(guildId);
+
+        if (musicManager == null) {
+            musicManager = new GuildMusicManager(playerManager);
+            musicManagers.put(guildId, musicManager);
+        }
+
+        guild.getAudioManager().setSendingHandler(musicManager.getSendHandler());
+
+        return musicManager;
+    }
+    
     private MessageEmbed Play(MessageReceivedEvent commandEvent) {
         EmbedBuilder embed = new EmbedBuilder();
         
@@ -85,46 +105,57 @@ public class Music {
     private MessageEmbed Play(MessageReceivedEvent commandEvent, String song) throws IOException {
         EmbedBuilder embed = new EmbedBuilder();
         
+        GuildMusicManager musicManager = getGuildAudioPlayer(commandEvent.getTextChannel().getGuild());
+        
         MessageReceivedEvent event = commandEvent;
         
         YoutubeSearch ytSearch = new YoutubeSearch(song);
         String songID = ytSearch.returnID();
         
         VoiceChannel connectedChannel = event.getMember().getVoiceState().getChannel();
-        AudioManager audioManager = event.getGuild().getAudioManager();
         
-        audioManager.setSendingHandler(new AudioPlayerSendHandler(player));
-        playerManager.loadItem(songID, new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack track) {
-                trackScheduler.queue(track);
-            }
+        if(connectedChannel == null) {
+            return embed.setColor(new Color(0x3598db))
+                    .setTitle("No Voice Channel!", null)
+                    .setDescription("You must be in a voice channel to play a song!")
+                    .setAuthor("Music", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
+                    .build();
+        }
+        else {
+            AudioManager audioManager = guild.getAudioManager();
 
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                for (AudioTrack track : playlist.getTracks()) {
-                    trackScheduler.queue(track);
+            playerManager.loadItemOrdered(musicManager, songID, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack track) {
+                    musicManager.scheduler.queue(track);
                 }
-            }
 
-            @Override
-            public void noMatches() {
-                // Notify the user that we've got nothing
-            }
+                @Override
+                public void playlistLoaded(AudioPlaylist playlist) {
+                    for (AudioTrack track : playlist.getTracks()) {
+                        musicManager.scheduler.queue(track);
+                    }
+                }
 
-            @Override
-            public void loadFailed(FriendlyException throwable) {
-                // Notify the user that everything exploded
-            }
-        });
-        
-        audioManager.openAudioConnection(connectedChannel);
-        
-        return embed.setColor(new Color(0x3598db))
-                .setTitle("Track Queued", null)
-                .setDescription(ytSearch.returnTitle())
-                .setAuthor("Music", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
-                .build();
+                @Override
+                public void noMatches() {
+                    // Notify the user that we've got nothing
+                }
+
+                @Override
+                public void loadFailed(FriendlyException throwable) {
+                    // Notify the user that everything exploded
+                }
+            });
+
+            audioManager.openAudioConnection(connectedChannel);
+
+            return embed.setColor(new Color(0x3598db))
+                    .setTitle("Track Queued", null)
+                    .setDescription(ytSearch.returnTitle())
+                    .setAuthor("Music", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
+                    .build();
+        }
     }
     
     private MessageEmbed End(MessageReceivedEvent commandEvent) {
@@ -132,7 +163,7 @@ public class Music {
 
         MessageReceivedEvent event = commandEvent;
         AudioManager audioManager = event.getGuild().getAudioManager();
-        player.destroy();
+        getGuildAudioPlayer(guild).player.destroy();
         audioManager.closeAudioConnection();
         
         return embed.setColor(new Color(0x3598db))
@@ -144,16 +175,19 @@ public class Music {
     private MessageEmbed Now(MessageReceivedEvent commandEvent) {
         EmbedBuilder embed = new EmbedBuilder();
         
+        GuildMusicManager musicManager = getGuildAudioPlayer(guild);
+        
         return embed.setColor(new Color(0x3598db))
                 .setTitle("Now Playing", null)
-                .setDescription(player.getPlayingTrack().getInfo().title)
+                .setDescription(musicManager.player.getPlayingTrack().getInfo().title)
                 .setAuthor("Music", null, "https://cdn.discordapp.com/avatars/430694465372684288/92de5decd5352f64de3f2ce73ee7aa24.png")
                 .build();
     }
     
     private MessageEmbed Skip(MessageReceivedEvent commandEvent) {
         try {
-            trackScheduler.nextTrack();
+            GuildMusicManager musicManager = getGuildAudioPlayer(guild);
+            musicManager.scheduler.nextTrack();
             return Now(commandEvent);
         } catch(Exception e) {
             return End(commandEvent);
@@ -164,7 +198,7 @@ public class Music {
         EmbedBuilder embed = new EmbedBuilder();
         String list = "";
         
-        ArrayList<AudioTrack> arrayQueue = new ArrayList(trackScheduler.queue);
+        ArrayList<AudioTrack> arrayQueue = new ArrayList(queue);
         for(int i = 0; i < arrayQueue.size(); i++) {
             list += (i + 1) + ". " + arrayQueue.get(i).getInfo().title + "\n";
         }

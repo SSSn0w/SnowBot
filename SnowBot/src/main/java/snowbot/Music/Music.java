@@ -198,7 +198,8 @@ public class Music extends AudioEventAdapter {
         EmbedBuilder embed = new EmbedBuilder();
         String list = "";
         
-        ArrayList<AudioTrack> arrayQueue = new ArrayList(queue);
+        ArrayList<AudioTrack> arrayQueue = new ArrayList(getGuildAudioPlayer(guild).scheduler.queue);
+        
         for(int i = 0; i < arrayQueue.size(); i++) {
             list += (i + 1) + ". " + arrayQueue.get(i).getInfo().title + "\n";
         }
